@@ -16,8 +16,8 @@ namespace BiliRealScore
     {
         public string? media_id;
         private string? coursor;
-        private int total = 0;
-        private int cnt = 0;
+        private long total = 0;
+        private long cnt = 0;
         public int average;
         private const string base_url = "https://api.bilibili.com/pgc/review/[TYPE]/list?media_id=[MD]&ps=20&sort=0";
         private string url = "";

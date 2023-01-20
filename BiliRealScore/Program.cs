@@ -1,6 +1,6 @@
 ﻿using BiliRealScore;
 
-string md = Console.ReadLine();
+string md = "417";
 RequestData t = new(md);
 t.setType(true);
 t.getAllData();

@@ -12,16 +12,18 @@ using NPOI.SS.Formula.Functions;
 using System.Threading;
 namespace BiliRealScore
 {
-    internal class RequestData
+    internal class RequestData: ExportExcel
     {
         public string? media_id;
         private string? coursor;
         private long total = 0;
         private long cnt = 0;
         public int average;
+        public int sleepTime = 400;
         private const string base_url = "https://api.bilibili.com/pgc/review/[TYPE]/list?media_id=[MD]&ps=20&sort=0";
         private string url = "";
         private string? appendArg = "&cursor=[CR]";
+        private long[] scores  = new long[12];
 
         /// <summary>
         /// 初始化
@@ -71,7 +73,7 @@ namespace BiliRealScore
                 throw new Exception("获取数据失败");
             }
 
-            jobj = (JObject)JObject.Parse(content);
+            jobj = JObject.Parse(content);
             coursor = jobj["data"]["next"].ToString();
             try
             {
@@ -79,23 +81,25 @@ namespace BiliRealScore
                 {
                     foreach (var c in jobj["data"]["list"])
                     {
-                        total += int.Parse(c["score"].ToString());
+                        int t = int.Parse(c["score"].ToString());
+                        total += t;
+                        scores[t-1]++;
                         cnt++;
                     }
                     // 统计20个评价
                     Console.WriteLine("已下载了{0}条", cnt);
                     content = getSingleData();
                     jobj = null;
-                    jobj = (JObject)JObject.Parse(content);
+                    jobj = JObject.Parse(content);
                     coursor = jobj["data"]["next"].ToString();
                     if (coursor == "0") break;
-                    Thread.Sleep(500);
+                    Thread.Sleep(sleepTime);
                 }
             }
             catch (Exception e)
             {
 
-                throw new Exception("解析过程中出错");
+                throw new Exception("解析过程中出错", e);
             }
 
         }
@@ -106,6 +110,14 @@ namespace BiliRealScore
         public double getAverage()
         {
             return (double)total / cnt;
+        }
+
+        public void showScores()
+        {
+            for (int i = 0; i < 10; i++)
+            {
+                Console.WriteLine(String.Format("{0} : {1}", i+1, scores[i]));
+            }
         }
 
     }
